@@ -2,100 +2,70 @@ import {
   SearchRunbookArgs,
   SearchRunbookArgsSchema,
 } from "../tools/searchRunbook.js";
-import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
+import { performSearch, EnhancedSearchResult } from "../engine/index.js";
+
+// Define the expected structure for the final output of this handler
+interface HandleSearchRunbookResult {
+  results: {
+    path: string;
+    snippet?: string; // Snippet might come from text_matches or be generated
+    full_content: string | null;
+    url: string;
+    score?: number; // Fuse.js score
+  }[];
+  total_count?: number; // This might be harder to get accurately with multi-stage processing
+  message: string;
+}
 
 export async function handleSearchRunbook(
   args: SearchRunbookArgs,
-): Promise<any> {
+): Promise<HandleSearchRunbookResult> {
   try {
     const { keyword } = validateArgs(SearchRunbookArgsSchema, args);
-
     console.error(`Handling search_runbook for keyword: ${keyword}`);
 
-    const githubOwner = "dwarvesf";
-    const githubRepo = "runbook";
-
-    // Use the githubApi function to search code to get matching file paths
-    const searchResults = await githubApi.searchCode(
-      githubOwner,
-      githubRepo,
-      keyword,
-    );
-
-    const itemsToProcess = searchResults.items.slice(0, 5); // Limit to top 5 results
-
-    // Map each item to a promise that fetches and processes its content
-    const contentPromises = itemsToProcess.map(async (item) => {
-      try {
-        const fileContentResponse = await githubApi.getContents(
-          githubOwner,
-          githubRepo,
-          item.path,
-          item.repository.default_branch,
-        );
-
-        if (
-          !Array.isArray(fileContentResponse) &&
-          fileContentResponse.type === "file" &&
-          fileContentResponse.content
-        ) {
-          const fullContent = Buffer.from(
-            fileContentResponse.content,
-            "base64",
-          ).toString("utf-8");
-          const snippet =
-            item.text_matches && item.text_matches.length > 0
-              ? item.text_matches[0].fragment
-              : "No snippet available";
-          return {
-            path: item.path,
-            snippet: snippet,
-            full_content: fullContent,
-            url: item.html_url,
-          };
-        } else {
-          console.warn(
-            `Could not fetch full content for ${item.path}. Unexpected response type or missing content.`,
-          );
-          return {
-            path: item.path,
-            snippet:
-              item.text_matches && item.text_matches.length > 0
-                ? item.text_matches[0].fragment
-                : "No snippet available",
-            full_content: null,
-            url: item.html_url,
-            message: "Could not fetch full content. Unexpected response type or missing content.",
-          };
-        }
-      } catch (contentError: any) {
-        console.error(
-          `Error fetching content for ${item.path}: ${contentError.message}`,
-        );
-        return {
-          path: item.path,
-          snippet:
-            item.text_matches && item.text_matches.length > 0
-              ? item.text_matches[0].fragment
-              : "No snippet available",
-          full_content: null,
-          url: item.html_url,
-          message: `Error fetching content: ${contentError.message}`,
-        };
-      }
-    });
-
-    // Wait for all content fetching and processing promises to resolve
-    const processedResults = await Promise.all(contentPromises);
-
-    return {
-      results: processedResults,
-      total_count: searchResults.total_count,
-      message: `Found and processed ${processedResults.length} results out of ${searchResults.total_count} total.`,
+    const searchConfig = {
+      targetRepo: "dwarvesf/runbook",
+      additionalQualifiers: ["language:markdown", "in:file,path"],
+      maxGitHubResults: 30, // Fetch more from GitHub for better local ranking
+      maxFinalResults: 5,  // Return top 5 after ranking
     };
+
+    const enhancedResults: EnhancedSearchResult[] = await performSearch(keyword, searchConfig);
+
+    // Transform EnhancedSearchResult to the desired output format
+    const finalResults = enhancedResults.map(item => {
+      // Attempt to get a snippet from text_matches if available
+      let snippet = "No snippet available";
+      if (item.text_matches && item.text_matches.length > 0 && item.text_matches[0].fragment) {
+        snippet = item.text_matches[0].fragment;
+      } else if (item.full_content) {
+        // Fallback: generate a snippet from full_content if no text_matches
+        const firstNChars = 200; // Or some other logic
+        snippet = item.full_content.substring(0, firstNChars) + (item.full_content.length > firstNChars ? "..." : "");
+      }
+
+      return {
+        path: item.path,
+        snippet: snippet,
+        full_content: item.full_content === undefined ? null : item.full_content, // Ensure null if undefined
+        url: item.html_url,
+        score: item.score, // Fuse.js score
+      };
+    });
+    
+    // total_count from the initial GitHub query might not be as relevant after re-ranking.
+    // For now, we can omit it or acknowledge it's from the pre-ranked set.
+    // Let's report the number of results *after* ranking.
+    return {
+      results: finalResults,
+      // total_count: initialGitHubTotalCount, // This would require performSearch to return it
+      message: `Found and ranked ${finalResults.length} results for "${keyword}".`,
+    };
+
   } catch (e: any) {
-    console.error(`Error during runbook search: ${e.message}`);
+    console.error(`Error during runbook search for keyword "${args.keyword}": ${e.message}`);
     return {
       results: [],
       message: `An error occurred during runbook search: ${e.message}`,

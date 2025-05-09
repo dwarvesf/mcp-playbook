@@ -278,9 +278,8 @@ export async function searchCode(
     `Attempting to search code in GitHub: ${owner}/${repo} with query "${query}"`,
   );
 
-  const cacheKey = `${owner}/${repo}:${query}`;
+  const cacheKey = `${owner}/${repo}:${query}`; // Corrected cache key
   const cachedResult = searchCache.get(cacheKey);
-  console.error({cachedResult})
 
   if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_TTL) {
     console.error(`Returning cached search result for ${cacheKey}`);
@@ -288,7 +287,7 @@ export async function searchCode(
   }
 
   try {
-    let searchQuery = `${query} in:file,path`;
+    let searchQuery = `${query}`;
 
     console.error(`Using search query: ${searchQuery}`);
 
