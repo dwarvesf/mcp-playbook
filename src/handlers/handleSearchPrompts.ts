@@ -2,107 +2,62 @@ import {
   SearchPromptsArgs,
   SearchPromptsArgsSchema,
 } from "../tools/searchPrompts.js";
-import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import { Buffer } from "buffer";
+import { performSearch, EnhancedSearchResult } from "../engine/index.js";
+
+// Define the expected structure for the final output of this handler
+interface HandleSearchPromptsResult {
+  results: {
+    path: string;
+    snippet?: string;
+    full_content: string | null;
+    url: string;
+    score?: number; // Fuse.js score
+  }[];
+  message: string;
+}
 
 export async function handleSearchPrompts(
   args: SearchPromptsArgs,
-): Promise<any> {
+): Promise<HandleSearchPromptsResult> {
   try {
     const { keyword } = validateArgs(SearchPromptsArgsSchema, args);
-
     console.error(`Handling search_prompts for keyword: ${keyword}`);
 
-    const githubOwner = "dwarvesf";
-    const githubRepo = "prompt-db";
-    
-    // The searchCode function in githubApi.ts already adds `repo:${owner}/${repo}`
-    // We need to provide the keyword and exclude the 'synced_prompts/' folder.
-    const constructedQuery = `${keyword}`;
+    const searchConfig = {
+      targetRepo: "dwarvesf/prompt-db",
+      additionalQualifiers: ["-path:synced_prompts", "in:file,path"], // Exclude the synced_prompts directory
+      maxGitHubResults: 30, // Fetch more from GitHub for better local ranking
+      maxFinalResults: 5,   // Return top 5 after ranking
+    };
 
-    const searchResults = await githubApi.searchCode(
-      githubOwner,
-      githubRepo,
-      constructedQuery,
-    );
+    const enhancedResults: EnhancedSearchResult[] = await performSearch(keyword, searchConfig);
 
-    // Limit to top 5 results, similar to handleSearchRunbook
-    const itemsToProcess = searchResults.items.slice(0, 5);
-
-    // Map each item to a promise that fetches and processes its content
-    const contentPromises = itemsToProcess.map(async (item) => {
-      try {
-        const fileContentResponse = await githubApi.getContents(
-          githubOwner,
-          githubRepo,
-          item.path, // item.path from searchCode is the full path within the repo
-          item.repository.default_branch,
-        );
-
-        if (
-          !Array.isArray(fileContentResponse) &&
-          fileContentResponse.type === "file" &&
-          fileContentResponse.content
-        ) {
-          const fullContent = Buffer.from(
-            fileContentResponse.content,
-            "base64",
-          ).toString("utf-8");
-
-          const snippet =
-            item.text_matches && item.text_matches.length > 0
-              ? item.text_matches[0].fragment
-              : "No snippet available";
-
-          return {
-            path: item.path,
-            snippet: snippet,
-            full_content: fullContent,
-            url: item.html_url,
-          };
-        } else {
-          console.warn(
-            `Could not fetch full content for ${item.path}. Unexpected response type or missing content.`,
-          );
-          return {
-            path: item.path,
-            snippet:
-              item.text_matches && item.text_matches.length > 0
-                ? item.text_matches[0].fragment
-                : "No snippet available",
-            full_content: null,
-            url: item.html_url,
-            message: "Could not fetch full content. Unexpected response type or missing content.",
-          };
-        }
-      } catch (contentError: any) {
-        console.error(
-          `Error fetching content for ${item.path}: ${contentError.message}`,
-        );
-        return {
-          path: item.path,
-          snippet:
-            item.text_matches && item.text_matches.length > 0
-              ? item.text_matches[0].fragment
-              : "No snippet available",
-          full_content: null,
-          url: item.html_url,
-          message: `Error fetching content: ${contentError.message}`,
-        };
+    const finalResults = enhancedResults.map(item => {
+      let snippet = "No snippet available";
+      if (item.text_matches && item.text_matches.length > 0 && item.text_matches[0].fragment) {
+        snippet = item.text_matches[0].fragment;
+      } else if (item.full_content) {
+        const firstNChars = 200;
+        snippet = item.full_content.substring(0, firstNChars) + (item.full_content.length > firstNChars ? "..." : "");
       }
+
+      return {
+        path: item.path,
+        snippet: snippet,
+        full_content: item.full_content === undefined ? null : item.full_content,
+        url: item.html_url,
+        score: item.score,
+      };
     });
 
-    // Wait for all content fetching and processing promises to resolve
-    const processedResults = await Promise.all(contentPromises);
-
     return {
-      results: processedResults,
-      total_count: searchResults.total_count,
-      message: `Found and processed ${processedResults.length} results out of ${searchResults.total_count} total matching prompts.`,
+      results: finalResults,
+      message: `Found and ranked ${finalResults.length} results for "${keyword}" in prompt-db.`,
     };
+
   } catch (e: any) {
-    console.error(`Error during prompt search: ${e.message}`);
+    console.error(`Error during prompt search for keyword "${args.keyword}": ${e.message}`);
     return {
       results: [],
       message: `An error occurred during prompt search: ${e.message}`,
