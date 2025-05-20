@@ -6,7 +6,7 @@ import {
 import * as fsUtils from "../utils/fsUtils.js";
 import { validateArgs } from "../utils/validationUtils.js";
 
-export async function handleUpdateChangelog(
+export async function handleCreateChangelog(
   args: CreateChangelogArgs,
 ): Promise<any> {
   try {

@@ -21,7 +21,7 @@ import {
   handleSuggestRunbook,
   handleSyncPrompt,
   handleThinkTool,
-  handleUpdateChangelog,
+  handleCreateChangelog,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
@@ -78,7 +78,7 @@ async function main() {
             result = await handleCreateAdr(toolArgs as CreateAdrArgs);
             break;
           case "create_changelog":
-            result = await handleUpdateChangelog(
+            result = await handleCreateChangelog(
               toolArgs as CreateChangelogArgs,
             );
             break;
