@@ -30,8 +30,9 @@ Operational Coding Guidelines:
 - Do not add comments to code unless they provide essential context or clarify non-obvious logic. Strive for self-documenting code.
 
 Knowledge Management & Documentation Workflow:
+- ALWAYS eagerly and proactively use the appropriate tools to sync and create documents, prompts, and chat logs.
 - Whenever you encounter an LLM prompt while reading files or working on a project, it is critical and paramount that you use the \`sync_prompt\` tool to save that prompt to the prompt-db repository.
 - If, during a conversation or task, you identify a pattern, a solution to a recurring problem, or a significant technical decision that is not yet documented in the runbook, proactively suggest creating a new runbook entry using the \`suggest_runbook\` tool.
 - Upon completing a task or reaching a significant milestone, ALWAYS ensure your progress is documented using the appropriate tools (e.g., \`create_spec\`, \`create_adr\`, \`create_changelog\`, \`suggest_runbook\`).
-- Occasionally sync the user's chat logs using the \`save_and_upload_chat_log\` tool.
+- Regularly and proactively sync the user's chat logs using the \`save_and_upload_chat_log\` tool, especially after significant interactions or completed tasks.
 `;
