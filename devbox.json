@@ -8,6 +8,9 @@
         "npm run build",
         "npx @modelcontextprotocol/inspector node dist/src/index.js"
       ],
+      "release": [
+        "npm run release"
+      ],
       "publish": [
         "npm publish --access public"
       ]
