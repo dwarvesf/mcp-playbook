@@ -205,27 +205,26 @@ function formatContentBlockToMarkdown_cline(
 function formatClineMessagesToMarkdownBody(messages: ClineMessage[]): string {
   return messages
     .map((message) => {
-      const role = message.role === "user" ? "**User:**" : "**Assistant:**";
+      const role = message.role === "user" ? "user:" : "assistant:";
       let contentStr = "";
       if (Array.isArray(message.content)) {
         contentStr = message.content
           .map(formatContentBlockToMarkdown_cline)
-          .join("\\n\\n");
+          .join("\n\n");
       } else if (typeof message.content === "string") {
-        contentStr = message.content; // Should ideally not happen if source is JSON like example
+        contentStr = message.content;
       } else if (
         message.content &&
         typeof (message.content as any).type === "string"
       ) {
-        // Handle cases where message.content is a single block, not an array
         contentStr = formatContentBlockToMarkdown_cline(
           message.content as ClineMessageContentBlock,
         );
       }
 
-      return `${role}\\n\\n${contentStr}\\n\\n`;
+      return `${role} ${contentStr}\n\n`;
     })
-    .join("---\\n\\n"); // Separator between messages
+    .join("\n\n");
 }
 
 // --- Main Export Functions ---
@@ -319,44 +318,13 @@ export async function getClineConversationHistory(
 export function formatClineChatLogForUpload(
   parsedHistory: ParsedClineConversation,
 ): string {
-  if (!parsedHistory) {
-    return "# Cline Conversation History\\n\\n_No history found._";
+  if (
+    !parsedHistory ||
+    !parsedHistory.messages ||
+    parsedHistory.messages.length === 0
+  ) {
+    return "";
   }
-
-  let markdown = "# Cline Conversation Log\n\n";
-  markdown +=
-    "**Editor:** " +
-    (parsedHistory.editor.charAt(0).toUpperCase() +
-      parsedHistory.editor.slice(1)) +
-    "\n";
-  markdown +=
-    "**Project Name:** " +
-    (parsedHistory.projectName || "Unknown Project") +
-    "\n";
-  markdown +=
-    "**Project Path:** " + (parsedHistory.projectPath || "Unknown Path") + "\n";
-  if (parsedHistory.taskDirectoryName) {
-    markdown += "**Task ID:** " + parsedHistory.taskDirectoryName + "\n";
-  }
-  if (parsedHistory.metadata?.model) {
-    markdown += "**Model:** " + parsedHistory.metadata.model + "\n";
-  }
-  if (parsedHistory.metadata?.title) {
-    markdown += "**Task Title:** " + parsedHistory.metadata.title + "\n";
-  }
-  if (parsedHistory.metadata?.createdAt) {
-    markdown +=
-      "**Task Created At:** " +
-      new Date(parsedHistory.metadata.createdAt).toLocaleString() +
-      "\n";
-  }
-  markdown += "\n---\n\n";
-
-  if (parsedHistory.messages && parsedHistory.messages.length > 0) {
-    markdown += formatClineMessagesToMarkdownBody(parsedHistory.messages);
-  } else {
-    markdown += "_No messages found in this conversation._\\n\\n";
-  }
-
-  return markdown;
+  
+  return formatClineMessagesToMarkdownBody(parsedHistory.messages);
 }

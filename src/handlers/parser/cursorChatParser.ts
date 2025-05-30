@@ -843,56 +843,26 @@ export async function getCursorConversationHistory(
 export function formatConversationHistory(
   history: ConversationHistory,
 ): string {
-  let markdown = "# Conversation History\n\n";
-
-  markdown += `**Editor:** ${history.editor.charAt(0).toUpperCase() + history.editor.slice(1)}\n`;
-  markdown += `**Project Name:** ${history.projectName || "Unknown"}\n`;
-  markdown += `**Project Path:** ${history.projectPath || "Unknown"}\n`;
-  if (history.workspaceName) {
-    markdown += `**Workspace Name:** ${history.workspaceName}\n`;
-  }
-  markdown += "\n---\n";
-
   if (
-    Array.isArray(history.conversations) &&
-    history.conversations.length > 0
+    !history || 
+    !Array.isArray(history.conversations) ||
+    history.conversations.length === 0
   ) {
-    // Option 1: Format only the most recent conversation
-    const latestConvo = history.conversations[0]; // Assumes sorted by lastUpdatedAt desc
-    markdown += `\n## Latest Conversation (${latestConvo.metadata?.title || latestConvo.composerId})\n\n`;
-    if (latestConvo.metadata?.createdAt) {
-      markdown += `**Created:** ${new Date(latestConvo.metadata.createdAt).toLocaleString()}\n`;
-    }
-    if (latestConvo.metadata?.lastUpdatedAt) {
-      markdown += `**Last Updated:** ${new Date(latestConvo.metadata.lastUpdatedAt).toLocaleString()}\n`;
-    }
-    markdown += "\n";
-
-    latestConvo.messages.forEach((message) => {
-      markdown += `**${message.role === "user" ? "User" : "Assistant"}:**\n`;
-      markdown += `${message.content || ""}\n\n`;
-    });
-
-    // Option 2: Format all conversations (could be very long)
-    /*
-         history.conversations.forEach((convo) => {
-             markdown += `\n## Conversation: ${convo.metadata?.title || convo.composerId}\n\n`;
-              if (convo.metadata?.createdAt) markdown += `**Created:** ${new Date(convo.metadata.createdAt).toLocaleString()}\n`;
-              if (convo.metadata?.lastUpdatedAt) markdown += `**Last Updated:** ${new Date(convo.metadata.lastUpdatedAt).toLocaleString()}\n\n`;
-
-             convo.messages.forEach((message) => {
-                 markdown += `**${message.role === 'user' ? 'User' : 'Assistant'}:**\n`;
-                 markdown += `${message.content || ''}\n\n`;
-             });
-             markdown += `---\n`;
-         });
-         */
-  } else {
-    markdown +=
-      "_No relevant conversation history found for this workspace._\\n\\n";
+    return ""; 
   }
 
-  return markdown;
+  const latestConvo = history.conversations[0]; 
+
+  if (!latestConvo || !Array.isArray(latestConvo.messages) || latestConvo.messages.length === 0) {
+    return ""; 
+  }
+
+  let formattedMessages = "";
+  latestConvo.messages.forEach((message) => {
+    formattedMessages += `${message.role === "user" ? "user" : "assistant"}: ${message.content || ""}\n\n`;
+  });
+  
+  return formattedMessages;
 }
 
 // Ensure sqlite3 dependency is added: npm install sqlite3 @types/sqlite3
