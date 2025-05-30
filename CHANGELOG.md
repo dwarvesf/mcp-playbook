@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.1.0...v1.2.0) (2025-05-30)
+
+### Features
+
+- standardize chatlog format and filename ([#2](https://github.com/dwarvesf/mcp-playbook/issues/2)) ([def85c4](https://github.com/dwarvesf/mcp-playbook/commit/def85c464042d27de6eb4e3ccd4d1a604373bcda))
+
 ## 1.1.0 (2025-05-29)
 
 ### Features
