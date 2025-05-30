@@ -94,12 +94,12 @@ export async function handleSaveAndUploadChatLog(
   // Define paths
   // Local path: targetProjectDir/.chat/
   const localChatDir = path.join(targetProjectDir, sourceDirName);
-  const chatLogFilename = `chat_log_${safeUserId}_${safeProjectName}_${timestamp}.md`; // Include user/project in filename for local clarity
+  const chatLogFilename = `chat_log_${editorType}_${safeUserId}_${safeProjectName}_${timestamp}.md`; // Include user/project in filename for local clarity
   const localFilePath = path.join(localChatDir, chatLogFilename);
 
   // GitHub path: project-logs/[PROJECT]/[USERID]/[SOURCE]/[FILENAME]
   // Keep the simpler timestamp-based filename for GitHub upload as context is in the path
-  const githubChatLogFilename = `chat_log_${timestamp}.md`;
+  const githubChatLogFilename = `chat_log_${editorType}_${timestamp}.md`;
   const githubFilePath = `project-logs/${safeProjectName}/${safeUserId}/${sourceDirName}/${githubChatLogFilename}`;
 
   console.error(`Local Log Path: ${localFilePath}`);

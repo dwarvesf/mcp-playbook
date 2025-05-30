@@ -211,32 +211,24 @@ export async function getZedConversationHistory(
 export function formatZedConversationHistory(
   history: ZedConversationHistory,
 ): string {
-  let markdown = `# Conversation History\n\n`;
-
-  markdown += `**Editor:** ${history.editor.charAt(0).toUpperCase() + history.editor.slice(1)}\n`;
-  markdown += `**Project Name:** ${history.projectName || "Unknown"}\n`;
-  markdown += `**Project Path:** ${history.projectPath || "Unknown"}\n`;
-  markdown += `\n---\n`;
-
-  // Zed parser currently only returns the latest conversation
   if (
-    Array.isArray(history.conversations) &&
-    history.conversations.length > 0
+    !history || 
+    !Array.isArray(history.conversations) ||
+    history.conversations.length === 0
   ) {
-    const convo = history.conversations[0];
-    markdown += `\n## Conversation (${convo.metadata?.title || convo.conversationId})\n\n`;
-    if (convo.metadata?.lastUpdatedAt) {
-      markdown += `**Last Updated:** ${new Date(convo.metadata.lastUpdatedAt).toLocaleString()}\n`;
-    }
-    markdown += `\n`;
-
-    convo.messages.forEach((message) => {
-      markdown += `**${message.role === "user" ? "User" : "Assistant"}:**\n`;
-      markdown += `${message.content || ""}\n\n`; // Ensure newline separation
-    });
-  } else {
-    markdown += "_No conversation history found or extracted._\n\n";
+    return "";
   }
 
-  return markdown;
+  const convo = history.conversations[0]; 
+
+  if (!convo || !Array.isArray(convo.messages) || convo.messages.length === 0) {
+    return "";
+  }
+
+  let formattedMessages = "";
+  convo.messages.forEach((message) => {
+    formattedMessages += `${message.role === "user" ? "user" : "assistant"}: ${message.content || ""}\n\n`;
+  });
+  
+  return formattedMessages;
 }
