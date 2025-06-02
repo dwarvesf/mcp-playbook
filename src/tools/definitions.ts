@@ -9,6 +9,7 @@ import { searchRunbookTool } from "./searchRunbook.js";
 import { suggestRunbookTool } from "./suggestRunbook.js";
 import { syncPromptTool } from "./syncPrompt.js";
 import { thinkTool } from "./thinkTool.js";
+import { distillProjectRunbookTool } from "./distillProjectRunbook.js";
 
 // Array holding all the tool definitions for the mcp-playbook server
 export const toolDefinitions: ToolDefinition[] = [
@@ -22,6 +23,7 @@ export const toolDefinitions: ToolDefinition[] = [
   suggestRunbookTool,
   syncPromptTool,
   thinkTool,
+  distillProjectRunbookTool,
 ];
 
 export default toolDefinitions;

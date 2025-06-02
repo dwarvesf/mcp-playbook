@@ -33,6 +33,7 @@ import { SearchRunbookArgs } from "./tools/searchRunbook.js";
 import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
 import { SyncPromptArgs } from "./tools/syncPrompt.js";
 import { ThinkToolArgs } from "./tools/thinkTool.js";
+import { DistillProjectRunbookArgs } from "./tools/distillProjectRunbook.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
@@ -104,6 +105,11 @@ async function main() {
             break;
           case "think":
             result = await handleThinkTool(toolArgs as ThinkToolArgs);
+            break;
+          case "distill_project_runbook":
+            result = await handleDistillProjectRunbook(
+              toolArgs as DistillProjectRunbookArgs,
+            );
             break;
           default:
             result = { status: "error", message: `Unknown tool: ${toolName}` };
