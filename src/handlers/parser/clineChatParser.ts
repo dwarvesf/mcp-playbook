@@ -325,6 +325,6 @@ export function formatClineChatLogForUpload(
   ) {
     return "";
   }
-  
+
   return formatClineMessagesToMarkdownBody(parsedHistory.messages);
 }

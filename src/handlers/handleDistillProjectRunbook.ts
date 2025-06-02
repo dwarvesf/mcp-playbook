@@ -36,7 +36,7 @@ export async function handleDistillProjectRunbook(
       frontmatterParts.push("distilled_from:");
       source_document_references.forEach((ref: string) => {
         // Basic sanitization for references to avoid breaking YAML structure
-        const sanitizedRef = ref.replace(/"/g, '\\"').replace(/\n/g, ' ');
+        const sanitizedRef = ref.replace(/"/g, '\\"').replace(/\n/g, " ");
         frontmatterParts.push(`  - "${sanitizedRef}"`);
       });
     }

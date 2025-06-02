@@ -844,24 +844,28 @@ export function formatConversationHistory(
   history: ConversationHistory,
 ): string {
   if (
-    !history || 
+    !history ||
     !Array.isArray(history.conversations) ||
     history.conversations.length === 0
   ) {
-    return ""; 
+    return "";
   }
 
-  const latestConvo = history.conversations[0]; 
+  const latestConvo = history.conversations[0];
 
-  if (!latestConvo || !Array.isArray(latestConvo.messages) || latestConvo.messages.length === 0) {
-    return ""; 
+  if (
+    !latestConvo ||
+    !Array.isArray(latestConvo.messages) ||
+    latestConvo.messages.length === 0
+  ) {
+    return "";
   }
 
   let formattedMessages = "";
   latestConvo.messages.forEach((message) => {
     formattedMessages += `${message.role === "user" ? "user" : "assistant"}: ${message.content || ""}\n\n`;
   });
-  
+
   return formattedMessages;
 }
 

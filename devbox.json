@@ -8,9 +8,7 @@
         "npm run build",
         "npx @modelcontextprotocol/inspector node dist/src/index.js"
       ],
-      "release": [
-        "npm run release"
-      ],
+      "release": ["npm run release"],
       "publish": [
         "git push --follow-tags origin main",
         "npm publish --access public"

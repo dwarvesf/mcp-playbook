@@ -212,14 +212,14 @@ export function formatZedConversationHistory(
   history: ZedConversationHistory,
 ): string {
   if (
-    !history || 
+    !history ||
     !Array.isArray(history.conversations) ||
     history.conversations.length === 0
   ) {
     return "";
   }
 
-  const convo = history.conversations[0]; 
+  const convo = history.conversations[0];
 
   if (!convo || !Array.isArray(convo.messages) || convo.messages.length === 0) {
     return "";
@@ -229,6 +229,6 @@ export function formatZedConversationHistory(
   convo.messages.forEach((message) => {
     formattedMessages += `${message.role === "user" ? "user" : "assistant"}: ${message.content || ""}\n\n`;
   });
-  
+
   return formattedMessages;
 }

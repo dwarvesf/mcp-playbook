@@ -5,9 +5,7 @@ import { ToolDefinition } from "../types.js";
 export const DistillProjectRunbookArgsSchema = z.object({
   target_project_dir: z
     .string()
-    .describe(
-      "The absolute path to the root of the target project directory.",
-    ),
+    .describe("The absolute path to the root of the target project directory."),
   content: z
     .string()
     .describe(

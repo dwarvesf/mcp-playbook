@@ -11,7 +11,9 @@ import {
 
 import {
   handleCreateAdr,
+  handleCreateChangelog,
   handleCreateSpec,
+  handleDistillProjectRunbook,
   handleGetPrompt,
   handleInitPlaybook,
   handleListPrompts,
@@ -21,20 +23,18 @@ import {
   handleSuggestRunbook,
   handleSyncPrompt,
   handleThinkTool,
-  handleCreateChangelog,
-  handleDistillProjectRunbook,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
 import { CreateSpecArgs } from "./tools/createSpec.js";
 import toolDefinitions from "./tools/definitions.js";
+import { DistillProjectRunbookArgs } from "./tools/distillProjectRunbook.js";
 import { SaveAndUploadChatLogArgs } from "./tools/saveAndUploadChatLog.js";
 import { SearchPromptsArgs } from "./tools/searchPrompts.js";
 import { SearchRunbookArgs } from "./tools/searchRunbook.js";
 import { SuggestRunbookArgs } from "./tools/suggestRunbook.js";
 import { SyncPromptArgs } from "./tools/syncPrompt.js";
 import { ThinkToolArgs } from "./tools/thinkTool.js";
-import { DistillProjectRunbookArgs } from "./tools/distillProjectRunbook.js";
 
 // Optional: Load environment variables from .env in local development
 import * as dotenv from "dotenv";
