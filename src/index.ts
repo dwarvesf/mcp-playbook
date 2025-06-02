@@ -22,6 +22,7 @@ import {
   handleSyncPrompt,
   handleThinkTool,
   handleCreateChangelog,
+  handleDistillProjectRunbook,
 } from "./handlers.js";
 import { CreateAdrArgs } from "./tools/createAdr.js";
 import { CreateChangelogArgs } from "./tools/createChangelog.js";
