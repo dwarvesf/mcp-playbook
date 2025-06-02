@@ -87,18 +87,19 @@ This flow ensures that each tool call is directed to the correct logic for execu
 
 ## Available Tools
 
-| Tool Name                  | Description                                                                                                                                                                                                                                   |
-| :------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `init_playbook`            | Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.                 |
-| `create_spec`              | Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention with sequence numbering.  |
-| `create_adr`               | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                                 |
-| `create_changelog`         | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering. |
-| `save_and_upload_chat_log` | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                       |
-| `search_runbook`           | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If keyword has spaces, searches exact phrase OR individual words. Returns top 5 matches with full content & total count.                                               |
-| `search_prompts`           | Fuzzy search for keywords in the `dwarvesf/prompt-db` GitHub repository (excluding the `.synced_prompts/` folder).                                                                                                                            |
-| `suggest_runbook`          | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                |
-| `sync_prompt`              | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                              |
-| `think`                    | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                          |
+| Tool Name                  | Description                                                                                                                                                                                                                                                                                                                                                                    |
+| :------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `init_playbook`            | Provides an instruction to the LLM about the purpose of the mcp-playbook server, which is to facilitate local project documentation and enable partial replication of documentation and chat logs for an AI-powered playbook.                                                                                                                                                  |
+| `create_spec`              | Creates or overwrites a new specification file (e.g., PRD, RFC, architectural planning) in the docs/specs/ directory of the target project. Specification files will be named following a `spec-name.md` convention with sequence numbering.                                                                                                                                   |
+| `create_adr`               | Creates or overwrites a new Architectural Decision Record (ADR) file in the docs/adr/ directory of the target project. ADR files will be named following an `adr-name.md` convention with sequence numbering.                                                                                                                                                                  |
+| `create_changelog`         | Creates a new, detailed, and user-facing changelog entry file in the docs/changelog/ directory of the target project. Each changelog entry will be a separate file named following a `changelog-entry.md` convention with sequence numbering.                                                                                                                                  |
+| `distill_project_runbook`  | Creates or updates the central `docs/runbook.md` file within the target project. The LLM is responsible for analyzing existing project documents (ADRs, specs, etc.) and the current `docs/runbook.md` (if it exists), then synthesizing this information into a comprehensive runbook. The tool saves this LLM-generated content, overwriting the previous `docs/runbook.md`. |
+| `save_and_upload_chat_log` | Captures the current conversation history, saves it as a markdown file in the .chat/ directory of the target project, and uploads it to the dwarvesf/prompt-log GitHub repository. Requires a user ID for organization.                                                                                                                                                        |
+| `search_runbook`           | Fuzzy search for keywords in the `dwarvesf/runbook` GitHub repository. If keyword has spaces, searches exact phrase OR individual words. Returns top 5 matches with full content & total count.                                                                                                                                                                                |
+| `search_prompts`           | Fuzzy search for keywords in the `dwarvesf/prompt-db` GitHub repository (excluding the `.synced_prompts/` folder).                                                                                                                                                                                                                                                             |
+| `suggest_runbook`          | Creates or updates a Pull Request in the dwarvesf/runbook repository with a new runbook entry.                                                                                                                                                                                                                                                                                 |
+| `sync_prompt`              | Syncs an LLM prompt to the dwarvesf/prompt-db GitHub repository.                                                                                                                                                                                                                                                                                                               |
+| `think`                    | Use the tool to think about something. It will not obtain new information or make any changes to the repository, but just log the thought. Use it when complex reasoning or brainstorming is needed.                                                                                                                                                                           |
 
 ## Overview
 
@@ -202,6 +203,33 @@ A JSON object indicating success or failure, including the path if successful.
 {
   "status": "success" | "error",
   "path": "string" | undefined, // Path to the updated file if successful
+  "message": "string" // Description of the result or error
+}
+```
+
+### `distill_project_runbook`
+
+Creates or updates the central `docs/runbook.md` file within the target project. The LLM is responsible for:
+
+1. Thoroughly analyzing all relevant project documents (ADRs, specs, changelogs, code, etc.) within the `target_project_dir`.
+2. If `docs/runbook.md` already exists, reviewing its current content as part of the analysis.
+3. Synthesizing all gathered information (including from any existing `docs/runbook.md`) into an updated and comprehensive Project Runbook.
+
+The tool takes the LLM-generated content and saves it to `docs/runbook.md`, overwriting the previous version. The frontmatter (title, last_updated, distilled_from) is managed by the tool.
+
+**Parameters:**
+
+- `target_project_dir` (string, required): The absolute path to the root of the target project directory.
+- `content` (string, required): The complete markdown content for the `docs/runbook.md` file, as generated and synthesized by the LLM.
+- `source_document_references` (array of strings, optional): An array of paths or descriptive references to the key source documents the LLM used for the latest distillation/update (e.g., `[\'docs/adr/0001-auth-decision.md\', \'src/auth/service.ts\']`).
+
+**Returns:**
+A JSON object indicating success or failure, including the path to `docs/runbook.md` if successful.
+
+```json
+{
+  "status": "success" | "error",
+  "path": "string" | undefined, // Path to docs/runbook.md if successful
   "message": "string" // Description of the result or error
 }
 ```

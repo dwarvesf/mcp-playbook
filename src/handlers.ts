@@ -10,6 +10,7 @@ import { handleSuggestRunbook } from "./handlers/handleSuggestRunbook.js";
 import { handleSyncPrompt } from "./handlers/handleSyncPrompt.js";
 import { handleThinkTool } from "./handlers/handleThinkTool.js";
 import { handleCreateChangelog } from "./handlers/handleCreateChangelog.js";
+import { handleDistillProjectRunbook } from "./handlers/handleDistillProjectRunbook.js";
 
 export {
   handleCreateAdr,
@@ -24,4 +25,5 @@ export {
   handleSyncPrompt,
   handleThinkTool,
   handleCreateChangelog,
+  handleDistillProjectRunbook,
 };
