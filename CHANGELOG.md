@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.2.0...v1.3.0) (2025-06-02)
+
+### Features
+
+- Add distill project runbook tool ([#3](https://github.com/dwarvesf/mcp-playbook/issues/3)) ([78b6146](https://github.com/dwarvesf/mcp-playbook/commit/78b6146fcd133c96b5ecea1bb9f3de22e4c72678))
+
 ## [1.2.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.1.0...v1.2.0) (2025-05-30)
 
 ### Features
