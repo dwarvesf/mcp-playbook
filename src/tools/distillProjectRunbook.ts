@@ -26,13 +26,13 @@ export type DistillProjectRunbookArgs = z.infer<
 export const distillProjectRunbookTool: ToolDefinition = {
   name: "distill_project_runbook",
   description:
-    "Use this tool to create or update the central 'Project Runbook' file located at `docs/runbook.md` within the `target_project_dir`.\n**Before calling this tool, you MUST:**\n1. Thoroughly analyze all relevant project documents (ADRs, specs, changelogs, code, etc.) within the `target_project_dir`.\n2. If `docs/runbook.md` already exists, **you MUST review its current content** as part of your analysis.\n3. Synthesize all gathered information (including from any existing `runbook.md`) into an updated and comprehensive Project Runbook. This runbook serves as the primary, evolving knowledge base for understanding feature flows, key components, interactions, and operational procedures.\n4. The `content` you provide to this tool **must be the complete and final markdown content** for the entire `docs/runbook.md` file.\nThis tool will then save your generated content to `docs/runbook.md`, overwriting the previous version. The frontmatter will be updated with the current date and any source references you provide.",
+    "Use this tool to append content to the central 'Project Runbook' file located at `docs/runbook.md` within the `target_project_dir`.\n**Before calling this tool, you MUST:**\n1. Thoroughly analyze all relevant project documents (ADRs, specs, changelogs, code, etc.) within the `target_project_dir`.\n2. If `docs/runbook.md` already exists, **you MUST review its current content** as part of your analysis to avoid duplicating information.\n3. Synthesize all gathered information into new, additive content for the Project Runbook. This runbook serves as the primary, evolving knowledge base for understanding feature flows, key components, interactions, and operational procedures.\n4. The `content` you provide to this tool **must be new content to be appended** to the existing `docs/runbook.md` file.\n**IMPORTANT:** This tool *only appends* content. If you need to perform significant rewrites, corrections, or manual edits to the `docs/runbook.md` file, you should use `commander-edit_block` for surgical changes or `commander-write_file` with `mode: 'rewrite'` if a complete overhaul is necessary. The frontmatter of the runbook will be automatically updated with the current date and any source references you provide.",
   inputSchema: zodToJsonSchema(DistillProjectRunbookArgsSchema),
   annotations: {
-    title: "Create or Update Project Runbook",
+    title: "Append to Project Runbook",
     readOnlyHint: false, // It writes a file
-    destructiveHint: true, // It overwrites docs/runbook.md
-    idempotentHint: true, // Calling twice with same content results in same state
+    destructiveHint: false, // It appends, not overwrites
+    idempotentHint: false, // Appending same content twice results in different state
     openWorldHint: false, // Interacts with local filesystem
   },
 };
