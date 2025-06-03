@@ -44,8 +44,8 @@ export async function handleDistillProjectRunbook(
 
     const finalContent = frontmatterParts.join("\n") + content;
 
-    // Write/overwrite the content to the runbook.md file
-    fsUtils.writeFile(runbookFilePath, finalContent);
+    // Write/append the content to the runbook.md file
+    fsUtils.writeFile(runbookFilePath, finalContent, 'append');
 
     return {
       status: "success",
