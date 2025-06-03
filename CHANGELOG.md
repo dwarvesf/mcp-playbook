@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.3.0...v1.4.0) (2025-06-03)
+
+### Features
+
+- allow append mode for distill project runbook tool ([cc0e50c](https://github.com/dwarvesf/mcp-playbook/commit/cc0e50c8a982dc837e84313252b8a2bb96d658a0))
+
+### Bug Fixes
+
+- hint on it being append-only ([12fe221](https://github.com/dwarvesf/mcp-playbook/commit/12fe221bf17ab245439360dfb2dc0dc36d90d35e))
+
 ## [1.3.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.2.0...v1.3.0) (2025-06-02)
 
 ### Features
