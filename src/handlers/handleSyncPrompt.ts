@@ -3,32 +3,32 @@ import * as path from "path";
 import { SyncPromptArgs, SyncPromptArgsSchema } from "../tools/syncPrompt.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
+import yaml from 'js-yaml';
 
 export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
   try {
-    const { projectName, promptName, promptContent } = validateArgs(
-      SyncPromptArgsSchema,
-      args,
-    );
+    const validatedArgs = validateArgs(SyncPromptArgsSchema, args);
+    const { name, ...promptData } = validatedArgs;
 
     console.error(
-      `Handling sync_prompt for project: ${projectName}, prompt: ${promptName}`,
+      `Handling sync_prompt for prompt: ${name}`,
     );
 
     const githubOwner = "dwarvesf";
     const githubRepo = "prompt-db";
-    const targetFolder = ".synced_prompts";
-    const baseBranch = "main"; // Target branch for syncing
+    const targetFolder = "prompts"; 
+    const baseBranch = "main";
+
+    // Convert the prompt data to YAML format
+    const yamlContent = yaml.dump(promptData);
 
     const targetFilePath = path.posix.join(
       targetFolder,
-      projectName,
-      `${promptName}.md`,
+      `${name.replace(/\s+/g, '-').toLowerCase()}.yml`,
     );
 
     let existingFileSha: string | undefined;
 
-    // 1. Check if the file already exists to get its SHA for updating
     try {
       const existingContent = await githubApi.getContents(
         githubOwner,
@@ -46,11 +46,10 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
           `File not found at ${targetFilePath} on branch ${baseBranch}. This is expected for a new file.`,
         );
       } else {
-        throw e; // Re-throw other errors
+        throw e;
       }
     }
 
-    // 2. Get the latest commit SHA of the base branch
     const latestRef = await githubApi.getRef(
       githubOwner,
       githubRepo,
@@ -58,7 +57,6 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     );
     const latestCommitSha = latestRef.object.sha;
 
-    // 3. Get the tree SHA from the latest commit
     const latestCommit = await githubApi.getCommit(
       githubOwner,
       githubRepo,
@@ -66,20 +64,18 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     );
     const baseTreeSha = latestCommit.tree.sha;
 
-    // 4. Create a new blob with the prompt content
     const blob = await githubApi.createBlob(
       githubOwner,
       githubRepo,
-      promptContent,
+      yamlContent,
       "utf-8",
     );
     const blobSha = blob.sha;
 
-    // 5. Create a new tree, including the existing tree and adding/updating the file
     const treeItems: githubApi.GitHubCreateTreeItem[] = [
       {
         path: targetFilePath,
-        mode: "100644", // File mode
+        mode: "100644",
         type: "blob",
         sha: blobSha,
       },
@@ -89,14 +85,13 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
       githubOwner,
       githubRepo,
       treeItems,
-      baseTreeSha, // Base the new tree on the latest tree
+      baseTreeSha,
     );
     const newTreeSha = newTree.sha;
 
-    // 6. Create a new commit referencing the new tree and the parent commit
     const commitMessage = existingFileSha
-      ? `sync: update prompt ${projectName}/${promptName}`
-      : `sync: add new prompt ${projectName}/${promptName}`;
+      ? `sync: update prompt ${name}`
+      : `sync: add new prompt ${name}`;
 
     const newCommit = await githubApi.createCommit(
       githubOwner,
@@ -107,7 +102,6 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     );
     const newCommitSha = newCommit.sha;
 
-    // 7. Update the base branch reference to point to the new commit
     await githubApi.updateRef(
       githubOwner,
       githubRepo,
@@ -125,8 +119,8 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
       github_url: githubFileUrl,
       commit_sha: newCommitSha,
       message: existingFileSha
-        ? `Successfully updated prompt ${projectName}/${promptName}`
-        : `Successfully synced prompt ${projectName}/${promptName}`,
+        ? `Successfully updated prompt ${name}`
+        : `Successfully synced prompt ${name}`,
     };
   } catch (e: any) {
     console.error(`Error in handleSyncPrompt: ${e.message}`);
