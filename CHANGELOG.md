@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.4.0...v1.5.0) (2025-06-08)
+
+### Features
+
+- update sync prompt tool and handler to support YAML format ([cd90d83](https://github.com/dwarvesf/mcp-playbook/commit/cd90d83ff2d2c49125e6db2eb4e36d521f47bcee))
+
+### Bug Fixes
+
+- restore projectName to sync prompt tool ([6248713](https://github.com/dwarvesf/mcp-playbook/commit/62487139e923760a447680f5c39352795e71d7df))
+
 ## [1.4.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.3.0...v1.4.0) (2025-06-03)
 
 ### Features
