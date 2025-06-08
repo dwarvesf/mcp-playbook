@@ -12,13 +12,17 @@ export function createDirectory(dirPath: string): void {
   }
 }
 
-export function writeFile(filePath: string, content: string, mode: 'rewrite' | 'append' = 'rewrite'): void {
+export function writeFile(
+  filePath: string,
+  content: string,
+  mode: "rewrite" | "append" = "rewrite",
+): void {
   console.error(`Attempting to write file: ${filePath} with mode: ${mode}`);
   try {
     // Ensure directory exists before writing
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    
-    const flag = mode === 'append' ? 'a' : 'w';
+
+    const flag = mode === "append" ? "a" : "w";
     fs.writeFileSync(filePath, content, { encoding: "utf-8", flag });
     console.error(`Successfully wrote file: ${filePath}`);
   } catch (e: any) {

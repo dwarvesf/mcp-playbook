@@ -1,9 +1,9 @@
 import { RequestError } from "@octokit/request-error";
+import yaml from "js-yaml";
 import * as path from "path";
 import { SyncPromptArgs, SyncPromptArgsSchema } from "../tools/syncPrompt.js";
 import * as githubApi from "../utils/githubApi.js";
 import { validateArgs } from "../utils/validationUtils.js";
-import yaml from 'js-yaml';
 
 export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
   try {
@@ -16,7 +16,7 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
 
     const githubOwner = "dwarvesf";
     const githubRepo = "prompt-db";
-    const targetFolder = "prompts"; 
+    const targetFolder = "prompts";
     const baseBranch = "main";
 
     // Convert the prompt data to YAML format
@@ -25,7 +25,7 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     const targetFilePath = path.posix.join(
       targetFolder,
       projectName,
-      `${name.replace(/\s+/g, '-').toLowerCase()}.yml`,
+      `${name.replace(/\s+/g, "-").toLowerCase()}.yml`,
     );
 
     let existingFileSha: string | undefined;
