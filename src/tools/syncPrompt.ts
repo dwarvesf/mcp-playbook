@@ -3,6 +3,7 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ToolDefinition } from "../types.js";
 
 export const SyncPromptArgsSchema = z.object({
+  projectName: z.string().describe("The name of the project the prompt belongs to."),
   name: z.string().describe("The name of the prompt."),
   description: z.string().describe("A brief description of the prompt's purpose."),
   model: z.string().describe("The model used for the prompt (e.g., openai/gpt-4o-mini)."),

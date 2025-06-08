@@ -8,10 +8,10 @@ import yaml from 'js-yaml';
 export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
   try {
     const validatedArgs = validateArgs(SyncPromptArgsSchema, args);
-    const { name, ...promptData } = validatedArgs;
+    const { projectName, name, ...promptData } = validatedArgs;
 
     console.error(
-      `Handling sync_prompt for prompt: ${name}`,
+      `Handling sync_prompt for project: ${projectName}, prompt: ${name}`,
     );
 
     const githubOwner = "dwarvesf";
@@ -20,10 +20,11 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     const baseBranch = "main";
 
     // Convert the prompt data to YAML format
-    const yamlContent = yaml.dump(promptData);
+    const yamlContent = yaml.dump({ name, ...promptData });
 
     const targetFilePath = path.posix.join(
       targetFolder,
+      projectName,
       `${name.replace(/\s+/g, '-').toLowerCase()}.yml`,
     );
 
@@ -90,8 +91,8 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     const newTreeSha = newTree.sha;
 
     const commitMessage = existingFileSha
-      ? `sync: update prompt ${name}`
-      : `sync: add new prompt ${name}`;
+      ? `sync: update prompt ${projectName}/${name}`
+      : `sync: add new prompt ${projectName}/${name}`;
 
     const newCommit = await githubApi.createCommit(
       githubOwner,
@@ -119,8 +120,8 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
       github_url: githubFileUrl,
       commit_sha: newCommitSha,
       message: existingFileSha
-        ? `Successfully updated prompt ${name}`
-        : `Successfully synced prompt ${name}`,
+        ? `Successfully updated prompt ${projectName}/${name}`
+        : `Successfully synced prompt ${projectName}/${name}`,
     };
   } catch (e: any) {
     console.error(`Error in handleSyncPrompt: ${e.message}`);
