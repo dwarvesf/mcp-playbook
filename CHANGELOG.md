@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/dwarvesf/mcp-playbook/compare/v1.5.0...v1.5.1) (2025-06-08)
+
+### Bug Fixes
+
+- use .prompt.yml suffix for synced prompts ([3e1b876](https://github.com/dwarvesf/mcp-playbook/commit/3e1b876982b7dd64ec2404b2bd3f118decf80c62))
+
 ## [1.5.0](https://github.com/dwarvesf/mcp-playbook/compare/v1.4.0...v1.5.0) (2025-06-08)
 
 ### Features
