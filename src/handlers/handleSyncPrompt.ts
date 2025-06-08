@@ -25,7 +25,7 @@ export async function handleSyncPrompt(args: SyncPromptArgs): Promise<any> {
     const targetFilePath = path.posix.join(
       targetFolder,
       projectName,
-      `${name.replace(/\s+/g, "-").toLowerCase()}.yml`,
+      `${name.replace(/\s+/g, '-').toLowerCase()}.prompt.yml`,
     );
 
     let existingFileSha: string | undefined;
